@@ -4,6 +4,17 @@ This repository contains an automated, valuation-driven stock alert system for t
 
 ---
 
+## Repository Layout
+
+boosted-balanced-garp-alert/
+├── .github/
+│   └── workflows/
+│       └── daily-alert.yml      # GitHub Actions workflow
+├── alert.py                     # main script
+└── requirements.txt             # Python deps
+
+---
+
 ## 🔧 Tech Stack
 
 | Component    | Purpose                                 |
