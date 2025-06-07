@@ -17,9 +17,11 @@ Please do your own research before acting on any investment decision.
 GARP_stock_alert/
 ├── .github/
 │   └── workflows/
-│       └── daily-alert.yml      # GitHub Actions workflow
-├── alert.py                     # main script
-└── requirements.txt             # Python deps
+│       └── daily-alert.yml         ← GitHub Actions config (runs every 12PM SGT)
+├── .env.template                   ← Local secrets template (user fills this manually)
+├── .gitignore                      ← Ensures `.env` is not committed
+├── alert.py                        ← Main alert script
+└── requirements.txt                ← Python dependencies
 ```
 
 ---
@@ -29,9 +31,7 @@ GARP_stock_alert/
 | Component    | Purpose                                 |
 |--------------|------------------------------------------|
 | **GitHub Actions** | Schedules and runs the workflow daily at 12:00PM Singapore Time (UTC+8) |
-| **Finnhub API**    | Retrieves valuation metrics for 11 selected stocks |
 | **SendGrid API**   | Sends daily email notification with buy/hold signals |
-| **Twilio API**     | Sends daily WhatsApp alert message to user |
 
 ---
 
@@ -77,7 +77,6 @@ This system runs **once per day** at **12:00PM Singapore Time (UTC+8)** via GitH
 ## 📬 Notification Channels
 
 - **Email:** Sent via SendGrid to your inbox
-- **WhatsApp:** Message sent via Twilio to your preferred number
 
 ---
 
@@ -87,12 +86,8 @@ Before deploying, configure these GitHub Secrets in your repository:
 
 | Secret Name          | Description                         |
 |----------------------|-------------------------------------|
-| `FINNHUB_API_KEY`     | Finnhub API key                     |
 | `SENDGRID_API_KEY`    | SendGrid API key                    |
-| `TWILIO_ACCOUNT_SID`  | Twilio account SID                  |
-| `TWILIO_AUTH_TOKEN`   | Twilio auth token                   |
-| `TWILIO_FROM`         | Twilio WhatsApp sender (sandbox or verified) |
-| `WHATSAPP_TO`         | Your WhatsApp number (`whatsapp:+65XXXXXXX`) |
+| `ALERT_EMAIL_FROM`    | Your email address for alerts       |
 | `ALERT_EMAIL_TO`      | Your email address for alerts       |
 
 ---
@@ -114,6 +109,4 @@ MIT License. Feel free to fork and customize this system.
 
 ## 🤝 Acknowledgments
 
-- [Finnhub.io](https://finnhub.io)
 - [SendGrid](https://sendgrid.com)
-- [Twilio WhatsApp API](https://www.twilio.com/whatsapp)

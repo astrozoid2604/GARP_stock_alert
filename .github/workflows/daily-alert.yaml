@@ -1,0 +1,22 @@
+name: Daily Boosted Balanced GARP Alert
+
+on:
+  schedule:
+    - cron: '0 4 * * *'  # 12PM SGT = 4AM UTC
+  workflow_dispatch:
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    env:
+      PORTFOLIO_NAME:      ${{ secrets.PORTFOLIO_NAME }}
+      SENDGRID_API_KEY:    ${{ secrets.SENDGRID_API_KEY }}
+      SENDGRID_FROM:       ${{ secrets.ALERT_EMAIL_FROM }}
+      SENDGRID_TO:         ${{ secrets.ALERT_EMAIL_TO }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: python alert.py

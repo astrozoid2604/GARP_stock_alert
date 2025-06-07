@@ -1,0 +1,4 @@
+yfinance>=0.2.38
+sendgrid>=6.10.0
+python-dotenv>=1.0.1
+ipykernel
