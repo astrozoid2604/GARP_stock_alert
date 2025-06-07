@@ -14,7 +14,7 @@ Please do your own research before acting on any investment decision.
 ## Repository Layout
 
 ```bash
-boosted-balanced-garp-alert/
+GARP_stock_alert/
 ├── .github/
 │   └── workflows/
 │       └── daily-alert.yml      # GitHub Actions workflow
