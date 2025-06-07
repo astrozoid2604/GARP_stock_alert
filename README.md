@@ -1,6 +1,13 @@
-# 📈 Boosted Balanced GARP Daily Alert System
+# 📈 Daily Alert System for `Boosted Balanced GARP` Portfolio
 
 This repository contains an automated, valuation-driven stock alert system for the **Boosted Balanced GARP** portfolio — a curated set of high-growth, fundamentally strong stocks. It runs daily using GitHub Actions and delivers personalized alerts based on forward P/E, PEG, and P/S ratio thresholds.
+
+---
+
+## ⚠️ DISCLAIMER:
+This script is part of a personal project and is NOT intended as financial advice.
+All valuation logic and portfolio allocations are for educational use only.
+Please do your own research before acting on any investment decision.
 
 ---
 
