@@ -2,8 +2,10 @@
 import yfinance as yf
 import datetime
 import os
+import requests
 import sendgrid
 from sendgrid.helpers.mail import Mail
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 
@@ -24,8 +26,9 @@ stocks = {
     'LLY':  {'weight': 5,  'fpe_limit': 35, 'peg_limit': 0.7, 'ps_limit': 13}
 }
 
+
 # === HELPER FUNCTIONS ===
-def get_financials(ticker):
+def get_financials_yf(ticker):
     stock = yf.Ticker(ticker)
     try:
         info = stock.info
@@ -38,6 +41,71 @@ def get_financials(ticker):
     except:
         print(f"[Error] Failed to fetch financials for {ticker}")
         return {'fpe': float('inf'), 'peg': float('inf'), 'ps': float('inf')}
+
+
+def get_financials_polygon(ticker):
+    api_key = os.getenv("POLYGON_API_KEY")  # Store in .env or GitHub Secret
+    url = f"https://api.polygon.io/vX/reference/financials?ticker={ticker}&apiKey={api_key}"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+
+        # Navigate the structure – depends on endpoint version
+        result = data.get('results', [{}])[0]
+
+        fpe = result.get('metrics', {}).get('forwardPE') or float('inf')
+        peg = result.get('metrics', {}).get('pegRatio') or float('inf')
+        ps = result.get('metrics', {}).get('priceToSales') or float('inf')
+
+        if any(v == float('inf') for v in [fpe, peg, ps]):
+            print(f"[Warning] Partial data from Polygon for {ticker}")
+
+        return {'fpe': fpe, 'peg': peg, 'ps': ps}
+    except Exception as e:
+        print(f"[Error] Failed to fetch Polygon data for {ticker}: {e}")
+        return {'fpe': float('inf'), 'peg': float('inf'), 'ps': float('inf')}
+
+
+def get_financials_yf_bs(ticker):
+    print(ticker, " get data")
+    
+    def get_metric(metric, rows):
+        for row in rows:
+            if metric in row.text:
+                cols = row.find_all('td')
+                if len(cols) >= 2:
+                    try: 
+                        return float(cols[1].text.strip())
+                    except:
+                        return float('inf')
+        return float('inf')
+        
+    url = f"https://sg.finance.yahoo.com/quote/{ticker}/key-statistics/"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Look for the table row containing "PE RATIO (FWD)"
+    rows = soup.find_all('tr')
+    metrics = ['Forward P/E', 'PEG ratio', 'Price/sales']
+
+    fpe = get_metric('Forward P/E', rows) or float('inf')
+    peg = get_metric('PEG ratio'  , rows) or float('inf')
+    ps  = get_metric('Price/sales', rows) or float('inf')
+
+    if any(v == float('inf') for v in [fpe, peg, ps]):
+        print(f"[Warning] Partial data from Polygon for {ticker}")
+
+    return {'fpe': fpe, 'peg': peg, 'ps': ps}
+
+
+def get_financials(ticker):
+    return get_financials_yf_bs(ticker)
+
 
 def evaluate_entry(fpe, peg, ps, limits):
     score = 0
