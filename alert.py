@@ -4,8 +4,12 @@ import datetime
 import os
 import sendgrid
 from sendgrid.helpers.mail import Mail
+from dotenv import load_dotenv
+
 
 # === CONFIGURATION ===
+load_dotenv()
+
 stocks = {
     'NVDA': {'weight': 14, 'fpe_limit': 30, 'peg_limit': 0.7, 'ps_limit': 22},
     'META': {'weight': 14, 'fpe_limit': 24, 'peg_limit': 0.7, 'ps_limit': 9.5},
@@ -29,7 +33,7 @@ def get_financials(ticker):
         peg = info.get('trailingPegRatio') or float('inf')
         ps = info.get('priceToSalesTrailing12Months') or float('inf')
         if any(val == float('inf') for val in [fpe, peg, ps]):
-            print(f"[Warning] Missing financial data for {ticker}")
+            print(f"\n[Warning] Missing financial data for {ticker}")
         return {'fpe': fpe, 'peg': peg, 'ps': ps}
     except:
         print(f"[Error] Failed to fetch financials for {ticker}")
@@ -80,8 +84,8 @@ def generate_email_content(results):
 def send_email(subject, html_content):
     sg = sendgrid.SendGridAPIClient(api_key=os.environ['SENDGRID_API_KEY'])
     email = Mail(
-        from_email='alert@portfolio.com',
-        to_emails='e0950510@u.nus.edu',
+        from_email=os.environ['SENDGRID_FROM'],
+        to_emails=os.environ['SENDGRID_TO'],
         subject=subject,
         html_content=html_content
     )
@@ -107,6 +111,7 @@ def main():
     subject_prefix = '[{} {}] Portfolio Notification'.format(date_str, 'Buy' if any_buy else 'Hold')
     html_body = generate_email_content(results)
     send_email(subject_prefix, html_body)
+    print('\nEmail sent ✅\n')
 
 if __name__ == '__main__':
     main()
